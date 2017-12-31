@@ -6,9 +6,11 @@ public class MultShiftHash extends Hash {
     // Init random generator (my class not java.util)
 
     private long a;	// odd multiplicative constant
+    private int bits;
 
     public MultShiftHash(int bits) {
 	super(bits);
+	this.bits = bits;
 	RandGenerator rand = new RandGenerator(0, u); // init random generator (my class not java.util)
 	a = rand.nextLong();
 	a += (a % 2 == 0 ? 1 : 0);	// ensure that a is odd
@@ -30,4 +32,9 @@ public class MultShiftHash extends Hash {
 	return ((a * x) & u) >> (w - l);
     }
 
+    @Override
+    public Hash rehash() {
+	return new MultShiftHash(bits);
+
+    }
 }

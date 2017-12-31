@@ -31,6 +31,8 @@ abstract class Hash {
 
     abstract long hash(long k, long m);
 
+    abstract Hash rehash();
+
     public static void main(String[] args) {
 
 	int runs = 0; 			// iterations to average over
@@ -52,15 +54,15 @@ abstract class Hash {
 
 	    // Test all LP hash table variants (my class not java.util)
 
-	    // Mult shift with LP
-	    m = 195;
-	    Hash msh = new MultShiftHash(w);	// init hash function with w-bit output
-	    ht = new LinearProbeHT(m, msh);
-	    for (int i = 0; i < m; i++) {
-		key = rand.nextLong();	// generate random element
-		ht.insert(key);
-		System.out.println("found " + ht.find(key));
-	    }
+	    //	    // Mult shift with LP
+	    //	    m = 195;
+	    //	    Hash msh = new MultShiftHash(w);	// init hash function with w-bit output
+	    //	    ht = new LinearProbeHT(m, msh);
+	    //	    for (int i = 0; i < m; i++) {
+	    //		key = rand.nextLong();	// generate random element
+	    //		ht.insert(key);
+	    //		System.out.println("found " + ht.find(key));
+	    //	    }
 
 	    //	    // Mult shift with Cuckoo
 	    //	    m = 8;
@@ -111,12 +113,32 @@ abstract class Hash {
 
 	    // Insert m elements into T filling until load factor a = 1
 
-	    int k = 0;
-	    long startTime = System.nanoTime();
-	    long a = rand.nextLong();	// odd multiplicative constant
-	    a += (a % 2 == 0 ? 1 : 0);	// ensure that a is odd
-	    long l = 20;		// fixed size of table T = 2^l = 2^20
+	    //	    long a = rand.nextLong();	// odd multiplicative constant
+	    //	    a += (a % 2 == 0 ? 1 : 0);	// ensure that a is odd
+	    //	    long l = 20;		// fixed size of table T = 2^l = 2^20
 
+	    Double[] alphas = { .1, .2, .3, .4, .5, .6, .7, .8, .9, 1.0 };
+	    for (Double a : alphas) {
+		for (int i = 0; i < 10; i++) {	// ten runs for each 
+		    Hash msh = new MultShiftHash(w);	// init hash function with w-bit output
+		    ht = new LinearProbeHT(m, msh);
+
+		    // Fill each table to desired load a
+		    long elemPerLoad = (long) Math.ceil(a * m);
+		    System.out.println("filling to load " + a + " with " + elemPerLoad);
+		    for (int j = 0; j < elemPerLoad; j++) {
+			key = rand.nextLong();	// generate random element
+			ht.insert(key);
+		    }
+		    // Now insert sequence
+		    long startTime = System.nanoTime();
+		    long k = 128;		// number of segments to insert
+		    for (int j = 0; j < k; j++) {
+			key = rand.nextLong();	// generate random element
+			ht.insert(key);
+		    }
+		}
+	    }
 	    //	    while (k < m) {
 	    //		k += 128; //next batch, increment 2^7
 	    //		long x = rand.nextLong();
@@ -125,7 +147,7 @@ abstract class Hash {
 	    //		//		System.out.printf("x=%d, a=%d, l=%d, hash=%d\n", x, a, l, hash);
 	    //
 	    //		long time = System.nanoTime() - startTime;
-	    //		double aveTime = (double) time / (double) k;
+	    //		double aveTime = time / (double) k;
 	    //		//		int nInserts += 128; // number of insertion subsequence 
 	    //		//		double meanSwapTime = aveTime / nSwaps;
 	    //

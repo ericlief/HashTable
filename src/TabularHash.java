@@ -1,11 +1,13 @@
 
 public class TabularHash extends Hash {
-    private static long[][] table;	// table for tabular hashing
+    private long[][] table;	// table for tabular hashing
+    private int bits;
     private int bitsPerSubstring; 	// decimal col size of table (represents 2^l distinct values for each substring)
     private int nSplits;		// number of splits for substrings
 
     public TabularHash(int bits, int bitsPerSubstring, int nSplits) {
 	super(bits);
+	this.bits = bits;
 	this.bitsPerSubstring = bitsPerSubstring;
 	this.nSplits = nSplits;
 
@@ -113,6 +115,16 @@ public class TabularHash extends Hash {
 	//	    }
 
 	return strings;
+    }
+
+    @Override
+    public Hash rehash() {
+	return new TabularHash(bits, bitsPerSubstring, nSplits);
+
+    }
+
+    public long[][] table() {
+	return table;
     }
 
 }
