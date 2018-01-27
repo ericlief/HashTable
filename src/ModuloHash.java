@@ -20,6 +20,5 @@ public class ModuloHash extends Hash {
     @Override
     public Hash rehash() {
 	return new ModuloHash(bits);
-
     }
 }

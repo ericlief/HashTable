@@ -13,26 +13,18 @@ public class TestLP {
 
     public static void main(String[] args) {
 
-	int runs = 0; 			// iterations to average over
-	String fout = "lp-multshift.csv";
+	String fout = "lp-mult-seq.csv";
 	Path pathOut = Paths.get(System.getProperty("user.home")).resolve("code/ds/HashTable/output/" + fout);
-
-	//	try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.WRITE,
-	//		StandardOpenOption.CREATE)) {
-	int w = 32;	// 32-bit unsigned
-	long MAX_U32 = Long.decode("0xffffffff"); 	// universe, here 2^32-1 bits
-	long m = Long.decode("0xfffff");		// size of ht, here 2^20
-
-	//	m = 512;
-
-	// Init random generator (my class not java.util)
-	RandGenerator rand = new RandGenerator(0, MAX_U32);
-
-	//HashTable ht;
 	Hash hash;
 	long key;
 
 	// Test all LP hash table variants (my class not java.util)
+	int w = 32;	// 32-bit unsigned
+	long MAX_U32 = Long.decode("0xffffffff"); 	// universe, here 2^32-1 bits
+	// long m = Long.decode("0xfffff");		// size of ht, here 2^20
+	long m = 1048576;
+	// Init random generator (my class not java.util)
+	RandGenerator rand = new RandGenerator(0, MAX_U32);
 
 	//	    // Mult shift with LP
 	//	    m = 195;
@@ -91,62 +83,130 @@ public class TestLP {
 	//
 	//	    }
 
-	hash = new MultShiftHash(w);	// init hash function with w-bit output
-	// hash = new ModuloHash(w);	// init hash class with w-bit output
+	//	hash = new MultShiftHash(w);	// init hash function with w-bit output
+	//	hash = new ModuloHash(w);	// init hash class with w-bit output
 
-	// Tabular
+	//	// Tabular
+	//	int bitsPerSubstring = 8;	// size of chunks, r-bits
+	//	int nSplits = 4;		// number of splits, c
+	//	hash = new TabularHash(w, bitsPerSubstring, nSplits);
+	//
+	//	Double[] alphas = { .1, .2, .3, .4, .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95 };
+	//	for (Double a : alphas) {
+	//	    try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.APPEND,
+	//		    StandardOpenOption.CREATE)) {
+	//
+	//		// For each a, do 10 runs 
+	//		for (int run = 0; run < 10; run++) {
+	//		    LinearProbeHT ht = new LinearProbeHT(m, hash);
+	//
+	//		    // Fill each table to desired load a
+	//		    long elemPerLoad = (long) Math.ceil(a * m);
+	//		    System.out.println("filling to load " + a + " with " + elemPerLoad);
+	//		    for (int j = 0; j < elemPerLoad; j++) {
+	//			key = rand.nextLong();	// generate random element
+	//			ht.insert(key);
+	//		    }
+	//
+	//		    // Clear steps class field
+	//		    ht.resetSteps();
+	//
+	//		    // Now insert sequence
+	//		    long startTime = System.nanoTime();
+	//		    long k = 4096;		// number of segments to insert
+	//		    //		    System.out.println("out loop");
+	//		    int j;
+	//		    for (j = 0; j < k && ht.n < m; j++) {
+	//			//			System.out.println("in loop");
+	//			key = rand.nextLong();	// generate random element
+	//			ht.insert(key);
+	//			//System.out.println(s);
+	//			//			steps += ht.insert(key);
+	//			//steps += s;
+	//		    }
+	//		    System.out.println(j);
+	//		    long totalTime = System.nanoTime() - startTime;
+	//		    long steps = ht.steps(); // total steps for the run
+	//
+	//		    //		    double aveTime = (double) endTime / (double) runs;
+	//		    double meanStepsPerInsert = (double) steps / (double) j; // number of pairs 
+	//		    double meanTimePerInsert = (double) totalTime / (double) j;
+	//		    // Uncomment to write 
+	//		    out.write(a + "," + run + "," + meanStepsPerInsert + "," + meanTimePerInsert + "\n");
+	//
+	//		    System.out.println("alpha " + a + " run " + run + " steps " + meanStepsPerInsert + " time "
+	//			    + meanTimePerInsert);
+	//		    System.out.println("n steps " + (double) steps);
+	//		    System.out.println("k=" + (double) k);
+	//
+	//		}
+	//
+	//	    } catch (IOException e) {
+	//		// TODO Auto-generated catch block
+	//		e.printStackTrace();
+	//	    }
+	//	}
+
+	// SEQUENTIAL TEST
+	//	hash = new MultShiftHash(w);	// init hash function with w-bit output
+
+	// hash = new ModuloHash(w);	// init hash class with w-bit output
+	//
+	//	//	 Tabular
 	//	int bitsPerSubstring = 8;	// size of chunks, r-bits
 	//	int nSplits = 4;		// number of splits, c
 	//	hash = new TabularHash(w, bitsPerSubstring, nSplits);
 
-	Double[] alphas = { .1, .2, .3, .4, .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95 };
-	// .2, .3, .4, .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95
-	for (Double a : alphas) {
-	    long aveSteps = 0;
+	for (int l = 3; l <= 20; l++) {
+	    m = (long) Math.pow(2, l);	// this is 2^l
 	    try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.APPEND,
 		    StandardOpenOption.CREATE)) {
 
-		for (int run = 0; run < 10; run++) {	// ten runs for each 
+		for (int run = 0; run < 1000; run++) {	// ten runs for each 
+		    // Multshift
+		    //		    hash = new MultShiftHash(w);	// init hash function with w-bit output
+
+		    //	 Tabular
+		    int bitsPerSubstring = 8;	// size of chunks, r-bits
+		    int nSplits = 4;		// number of splits, c
+		    hash = new TabularHash(w, bitsPerSubstring, nSplits);
+
 		    LinearProbeHT ht = new LinearProbeHT(m, hash);
 
-		    // Fill each table to desired load a
+		    // Fill each table to a = .89 
+		    double a = .89;
 		    long elemPerLoad = (long) Math.ceil(a * m);
 		    System.out.println("filling to load " + a + " with " + elemPerLoad);
-		    for (int j = 0; j < elemPerLoad; j++) {
-			key = rand.nextLong();	// generate random element
+		    long i;	// sequential keys
+		    for (i = 1; i < elemPerLoad; i++) {
+			// insert seq keys
+			key = i;
 			ht.insert(key);
 		    }
-
 		    ht.resetSteps();
 
-		    // Now insert sequence
-		    long startTime = System.nanoTime();
-		    //		    long steps = 0;
-		    long k = 4096;		// number of segments to insert
-		    //		    System.out.println("out loop");
-		    int j;
-		    for (j = 0; j < k && ht.n < m; j++) {
+		    //		    for (a = .89; a < .91 && ht.n < m; a += .01) {
+		    // Insert from .89 to .91 and measure mean
+		    long j;	// keys 
+		    a = (double) ht.n / (double) m;	// check load
+		    System.out.println("load after inserting to .89=" + a);
+		    for (j = 1; a <= .91; a = (double) ht.n / (double) m, j++) {
 			//			System.out.println("in loop");
-			key = rand.nextLong();	// generate random element
+			key = j + i - 1; // continue sequence
 			ht.insert(key);
-			//System.out.println(s);
+			//System.out.println("a=" + a + " j=" + j);
 			//			steps += ht.insert(key);
 			//steps += s;
 		    }
-		    System.out.println(j);
-		    long totalTime = System.nanoTime() - startTime;
 		    long steps = ht.steps(); // total steps for the run
 
 		    //		    double aveTime = (double) endTime / (double) runs;
 		    double meanStepsPerInsert = (double) steps / (double) j; // number of pairs 
-		    double meanTimePerInsert = (double) totalTime / (double) j;
 		    // Uncomment to write 
-		    out.write(a + "," + run + "," + meanStepsPerInsert + "," + meanTimePerInsert + "\n");
+		    out.write(l + "," + run + "," + meanStepsPerInsert + "\n");
 
-		    System.out.println("alpha " + a + " run " + run + " steps " + meanStepsPerInsert + " time "
-			    + meanTimePerInsert);
+		    System.out.println("l " + l + " run " + run + " steps " + meanStepsPerInsert);
 		    System.out.println("n steps " + (double) steps);
-		    System.out.println("k=" + (double) k);
 
 		}
 
@@ -154,9 +214,9 @@ public class TestLP {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	    }
-
 	}
     }
+
 }
 
 //	    while (k < m) {

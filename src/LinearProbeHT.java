@@ -1,10 +1,10 @@
 
 public class LinearProbeHT extends HashTable {
 
-    private long[] keys;
-    // private long[] values;
+    private long[] keys;	// element keys to insert
+    // private long[] values;	// uncomment for values as well
     private Hash hashFunc;	// chosen h(x)
-    private long steps;
+    private long steps;		// count steps
 
     public LinearProbeHT(long m, Hash hashFunc) {
 	super(m);			// instantiate super class
@@ -14,7 +14,7 @@ public class LinearProbeHT extends HashTable {
 	// Init array to hold table
 	keys = new long[(int) m];
 	for (int i = 0; i < m; i++)
-	    keys[i] = -1;			// since no null for primitives in Java...
+	    keys[i] = -1;		// since no null for primitives in Java...
 
     }
 
@@ -82,8 +82,5 @@ public class LinearProbeHT extends HashTable {
     public long steps() {
 	return steps;
     }
-    //    public static void main(String[] args) {
-    ////	LinearProbeHT ht = new LinearProbHT(m)
-    //		
-    //    }
+
 }
