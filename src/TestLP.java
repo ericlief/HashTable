@@ -35,12 +35,15 @@ public class TestLP {
 	int bitsPerSubstring = 8;	// size of chunks, r-bits
 	int nSplits = 4;		// number of splits, c
 	hash = new TabularHash(w, bitsPerSubstring, nSplits);
-
+	final int MAX_RUNS = 100;
 	Double[] alphas = { .1, .2, .3, .4, .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95 };
 	for (Double a : alphas) {
 	    try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.APPEND,
 		    StandardOpenOption.CREATE)) {
 
+		double meanStepsPerInsert = 0;
+		double meanTimePerInsert = 0;
+		int failedRehashes = 0;
 		// For each a, do 10 runs 
 		for (int run = 0; run < 10; run++) {
 		    LinearProbeHT ht = new LinearProbeHT(m, hash);
@@ -64,28 +67,22 @@ public class TestLP {
 		    for (j = 0; j < k && ht.n < m; j++) {
 			//			System.out.println("in loop");
 			key = rand.nextLong();	// generate random element
-			ht.insert(key);
-			//System.out.println(s);
-			//			steps += ht.insert(key);
-			//steps += s;
+			long idx = ht.insert(key);
 		    }
-		    System.out.println(j);
 		    long totalTime = System.nanoTime() - startTime;
 		    long steps = ht.steps(); // total steps for the run
 
 		    //		    double aveTime = (double) endTime / (double) runs;
-		    double meanStepsPerInsert = (double) steps / (double) j; // number of pairs 
-		    double meanTimePerInsert = (double) totalTime / (double) j;
-		    // Uncomment to write 
-		    out.write(a + "," + run + "," + meanStepsPerInsert + "," + meanTimePerInsert + "\n");
-
-		    System.out.println("alpha " + a + " run " + run + " steps " + meanStepsPerInsert + " time "
-			    + meanTimePerInsert);
-		    System.out.println("n steps " + (double) steps);
-		    System.out.println("k=" + (double) k);
-
+		    meanStepsPerInsert = (double) steps / (double) j; // number of pairs 
+		    meanTimePerInsert = (double) totalTime / (double) j;
 		}
+		// Get averages over all runs
+		meanStepsPerInsert /= MAX_RUNS;
+		meanTimePerInsert /= MAX_RUNS;
 
+		// Uncomment to write 
+		out.write(a + "," + meanStepsPerInsert + "," + meanTimePerInsert + "\n");
+		System.out.println("alpha " + a + " steps " + meanStepsPerInsert + " time " + meanTimePerInsert);
 	    } catch (IOException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();

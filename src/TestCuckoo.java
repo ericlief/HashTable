@@ -43,7 +43,6 @@ public class TestCuckoo {
 	int nSplits = 4;		// number of splits, c
 	hashA = new TabularHash(w, bitsPerSubstring, nSplits);
 	hashB = new TabularHash(w, bitsPerSubstring, nSplits);
-
 	final int MAX_FAILED_REHASHES = 10;
 	final int MAX_RUNS = 100;
 	Double[] alphas = { .1, .2, .25, .3, .35, .4, .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95, .99 };
@@ -63,34 +62,24 @@ public class TestCuckoo {
 		    for (int j = 0; j < elemPerLoad; j++) {
 			key = rand.nextLong();	// generate random element
 			long idx = ht.insert(key);
-			//			System.out.println(("(after returned) inserted " + idx));
 		    }
 
 		    ht.resetSteps();
 
 		    // Now insert sequence
 		    long startTime = System.nanoTime();
-		    //		    long steps = 0;
 		    long k = 4096;		// number of segments to insert
-		    //		    System.out.println("out loop");
 		    int j;
 		    for (j = 1; j <= k && ht.n <= m; j++) {
-			//			System.out.println("in loop");
 			key = rand.nextLong();	// generate random element
 			long idx = ht.insert(key);
-			//			System.out.println(("(after returned) inserted " + idx));
 			if (idx == -1)
 			    failedRehashes++;
-
-			//System.out.println(s);
-			//			steps += ht.insert(key);
-			//steps += s;
 		    }
 		    long totalTime = System.nanoTime() - startTime;
 		    long steps = ht.steps(); // total steps for the run
-
 		    //		    double aveTime = (double) endTime / (double) runs;
-		    meanStepsPerInsert += (double) steps / (double) j; // number of pairs 
+		    meanStepsPerInsert += (double) steps / (double) j;
 		    meanTimePerInsert += (double) totalTime / (double) j;
 		}
 		// Get averages over all runs
@@ -109,7 +98,6 @@ public class TestCuckoo {
 		if (failedRehashes > MAX_FAILED_REHASHES)
 		    break;
 	    } catch (IOException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	    }
 
