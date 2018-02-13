@@ -20,10 +20,9 @@ public class TestLP {
 
 	// Test all LP hash table variants (my class not java.util)
 	int w = 32;	// 32-bit unsigned
-	long MAX_U32 = (2L << 32 - 1) - 1; 	// universe, here 2^32-1 bits
-	// long m = Long.decode("0xfffff");		// size of ht, here 2^20
-	long m = 1048576;
-
+	//	long MAX_U32 = (2L << 32 - 1) - 1; 	// universe, here 2^32-1 bits = 1048576;
+	long m = 2L << 20 - 1; 	// size of table, here 2^20-1 bits
+	int l = 20;	// log2 of size of table
 	//	// RANDOM TEST
 	//	// Init random generator (my class not java.util)
 	//	RandGenerator rand = new RandGenerator(0, MAX_U32);
@@ -97,19 +96,20 @@ public class TestLP {
 	//		int nSplits = 4;		// number of splits, c
 	//		hash = new TabularHash(w, bitsPerSubstring, nSplits);
 	// Run tests for every size of m, 2^l
-	for (int l = 0; l <= 20; l++) {
-	    m = (long) Math.pow(2, l);	// this is 2^l
+	for (l = 0; l <= 20; l++) {
+	    m = 2L << l - 1; 	// size of table, here 2^l-1 bits
+
 	    try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.APPEND,
 		    StandardOpenOption.CREATE)) {
 
-		for (int run = 0; run < 1000; run++) {	// ten runs for each 
+		for (int run = 0; run < 1000; run++) {	// 1000 runs for each 
 		    // Multshift
-		    //		    hash = new MultShiftHash(w);	// init hash function with w-bit output
+		    hash = new MultShiftHash(w, l);	// init hash function with w-bit output
 
-		    //	 Tabular
-		    int bitsPerSubstring = 8;	// size of chunks, r-bits
-		    int nSplits = 4;		// number of splits, c
-		    hash = new TabularHash(w, bitsPerSubstring, nSplits);
+		    //		    //	 Tabular
+		    //		    int bitsPerSubstring = 8;	// size of chunks, r-bits
+		    //		    int nSplits = 4;		// number of splits, c
+		    //		    hash = new TabularHash(w, bitsPerSubstring, nSplits);
 
 		    LinearProbeHT ht = new LinearProbeHT(m, hash);
 
@@ -125,22 +125,15 @@ public class TestLP {
 		    }
 		    ht.resetSteps();
 
-		    //		    for (a = .89; a < .91 && ht.n < m; a += .01) {
 		    // Insert from .89 to .91 and measure mean
 		    long j;	// keys 
 		    a = (double) ht.n / (double) m;	// check load
 		    System.out.println("load after inserting to .89=" + a);
 		    for (j = 1; a <= .91; a = (double) ht.n / (double) m, j++) {
-			//			System.out.println("in loop");
 			key = j + i - 1; // continue sequence
 			ht.insert(key);
-			//System.out.println("a=" + a + " j=" + j);
-			//			steps += ht.insert(key);
-			//steps += s;
 		    }
 		    long steps = ht.steps(); // total steps for the run
-
-		    //		    double aveTime = (double) endTime / (double) runs;
 		    double meanStepsPerInsert = (double) steps / (double) j;
 
 		    // Uncomment to write 
@@ -158,130 +151,3 @@ public class TestLP {
     }
 
 }
-
-//	    while (k < m) {
-//		k += 128; //next batch, increment 2^7
-//		long x = rand.nextLong();
-//		System.out.println("x=" + x);
-//		//		long hash = multShift(x, a, w, l);
-//		//		System.out.printf("x=%d, a=%d, l=%d, hash=%d\n", x, a, l, hash);
-//
-//		double aveTime = time / (double) k;
-//		//		int nInserts += 128; // number of insertion subsequence 
-//		//		double meanSwapTime = aveTime / nSwaps;
-//
-//		//System.out.println(n + " elap time  " + time);
-//		//System.out.println("ave time " + aveTime);
-//		//System.out.println("n swaps " +nSwaps);
-//		//System.out.println("mean swap time " +meanSwapTime);
-//
-//		// Uncomment to write 
-//		//		out.write(n + "," + aveTime + "," + meanSwapTime + "\n");
-
-//	    }
-
-//	} catch (IOException e) {
-//	    // TODO Auto-generated catch block
-//	    e.printStackTrace();
-//	}
-
-//	long w = 64;
-//    long w = 32;
-//    long MAX_U32 = Long.decode("0xffffffff"); 	// 2^32-1
-//    long m = Long.decode("0xfffff");		// 2^20
-//    //	System.out.println(m);
-//    //	long MAX_U32 = Long.MAX_VALUE;
-//
-//    //	System.out.println(MAX_U32);
-//    RandGenerator rand = new RandGenerator(0, MAX_U32);
-//    //	LongStream stream = rand.longs(0, MAX_U32);
-//    //LongStream keys = rand.longs(10, 0, MAX_U32);
-//
-//    // Insert m elements into T filling until load factor a = 1
-//    for(
-//    long i = 0;i<m;i++)
-//    {
-//	long x = rand.nextLong();
-//	//System.out.println("x=" + x);
-//
-//	//	    LongStream A = rand.longs(w, 0, MAX_U32);
-//	//	    LongStream ls = LongStream.generate((LongSupplier) A);
-//	//	    ls.limit(10).forEach(System.out::println);
-//
-//	//	    LongStream stream = rand.longs(10, 0, MAX_U32);
-//	long a = rand.nextLong();
-//	long l = 20;
-//	a += (a % 2 == 0 ? 1 : 0);	// ensure that a is odd
-//	long hash = multShift(x, a, w, l);
-//	System.out.printf("x=%d, a=%d, l=%d, hash=%d\n", x, a, l, hash);
-//
-//	// insert
-//
-//	ht.insert(x, hash);
-//	//	    for (long l = 2; l < w; l *= 2) {
-//	//		//		    long a = stream.
-//	//		long a = rand.nextLong();
-//	//		a += (a % 2 == 0 ? 1 : 0);	// ensure that a is odd
-//	//		System.out.printf("x=%d, a=%d, l=%d, hash=%d\n", x, a, l, multShift(x, a, w, l));
-//	//
-//	//	    }
-//    }
-
-// Further tests
-
-//// Mult shift with LP
-//	    m = 195;
-//	    Hash msh = new MultShiftHash(w);	// init hash function with w-bit output
-//	    ht = new LinearProbeHT(m, msh);
-//	    for (int i = 0; i < m; i++) {
-//		key = rand.nextLong();	// generate random element
-//		ht.insert(key);
-//		System.out.println("found " + ht.find(key));
-//	    }
-
-//	    // Mult shift with Cuckoo
-//	    m = 8;
-//	    Hash msh = new MultShiftHash(w);	// init hash function with w-bit output
-//	    int bitsPerSubstring = 8;	// size of chunks, r-bits
-//	    int nSplits = 4;		// number of splits, c
-//	    Hash tab = new TabularHash(w, bitsPerSubstring, nSplits);
-//	    ht = new CuckooHT(m, msh, tab);
-//	    for (int i = 0; i < 2 * m; i++) {
-//		key = rand.nextLong();	// generate random element
-//		ht.insert(key);
-//		System.out.println("found " + ht.find(key));
-//	    }
-
-//	    // Tabular hash function
-//	    m = 64;
-//	    int bitsPerSubstring = 8;	// size of chunks, r-bits
-//	    int nSplits = 4;		// number of splits, c
-//	    Hash tab = new TabularHash(w, bitsPerSubstring, nSplits);
-//	    ht = new LinearProbeHT(m, tab);
-//	    //	    idx = tab.hash(key, m);	// get hash code from table
-//	    for (int i = 0; i < m; i++) {
-//		key = rand.nextLong();	// generate random element
-//		ht.insert(key);
-//		System.out.println("found " + ht.find(key));
-//	    }
-
-//	    // Simple mod hash
-//	    m = 20;
-//	    Hash mod = new ModuloHash(w);	// init hash class with w-bit output
-//	    ht = new LinearProbeHT(m, mod);
-//	    for (int i = 0; i < m; i++) {
-//		key = rand.nextLong();	// generate random element
-//		ht.insert(key);
-//		System.out.println("found " + ht.find(key));
-//	    }
-//	    // insert key
-//	    //	    ht = new LinearProbeHT(m);
-//	    ht.insert(key, idx);
-
-//	    for (long l = 2; l < w; l *= 2) {
-//		//		    long a = stream.
-//		long a = rand.nextLong();
-//		a += (a % 2 == 0 ? 1 : 0);	// ensure that a is odd
-//		System.out.printf("x=%d, a=%d, l=%d, hash=%d\n", x, a, l, multShift(x, a, w, l));
-//
-//	    }

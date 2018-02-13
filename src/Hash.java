@@ -39,7 +39,7 @@ abstract class Hash {
      *            size of table
      * @return value of function
      */
-    abstract long hash(long k, long m);
+    abstract long hash(long k);
 
     /**
      * Method to rehash or reset hash to new values.
@@ -60,6 +60,8 @@ abstract class Hash {
 	    x >>= 1;
 	    r++;
 	}
+
 	return r;
+
     }
 }

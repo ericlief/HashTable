@@ -2,12 +2,11 @@
 public class LinearProbeHT extends HashTable {
 
     private long[] keys;	// element keys to insert
-    // private long[] values;	// uncomment for values as well
     private Hash hashFunc;	// chosen h(x)
     private long steps;		// count steps
 
     public LinearProbeHT(long m, Hash hashFunc) {
-	super(m);			// instantiate super class
+	super(m);			// instantiate super class with m size of table
 	this.hashFunc = hashFunc;	// specified h(x)
 	steps = 0;
 
@@ -36,7 +35,7 @@ public class LinearProbeHT extends HashTable {
 	if (n == m)
 	    throw new IllegalStateException("Hash table is full!");
 
-	long i = hashFunc.hash(k, m);
+	long i = hashFunc.hash(k);
 	//	System.out.println("hash=" + i);
 	//	System.out.println("hash=" + (int) i);
 	//	System.out.println(keys.length);
@@ -65,7 +64,7 @@ public class LinearProbeHT extends HashTable {
     @Override
     public long find(long k) {
 
-	long i = hashFunc.hash(k, m);
+	long i = hashFunc.hash(k);
 	while (keys[(int) i] != k) {
 	    i = (i + 1) % m;
 	}

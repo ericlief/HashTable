@@ -7,52 +7,45 @@
  */
 public class MultShiftHash extends Hash {
 
-    //    private static long[][] table;	// for tabular hashing
-    //private static final long MAX_U32 = Long.decode("0xffffffff"); 	// 2^32-1
-    //private long u;	// decimal size of bits for range of h(x), 2^u
-    // Init random generator (my class not java.util)
-
     private long a;	// odd multiplicative constant
     private long bits;
+    private int l;
 
-    public MultShiftHash(long bits) {
+    public MultShiftHash(long bits, int l) {
 	super(bits);
 	this.bits = bits;
-	//	System.out.println(u);
-	RandGenerator rand = new RandGenerator(0, u); // init random generator (my class not java.util)
-	a = rand.nextLong();
+	this.l = l;
+
+	// This is multiplicative constant
+	RandGenerator rand = new RandGenerator(0, u); // init random generator (my class not java.util))
+	a = rand.nextLong();	// rand 32-bit unsigned long
 	a += (a % 2 == 0 ? 1 : 0);	// ensure that a is odd
     }
 
-    //    /**
-    //     * Set the bit-size for the range of h(x)
-    //     * 
-    //     * @param bits
-    //     */
-    //    public void setBits(int bits) {
-    //	u = (long) Math.pow(2, bits) - 1;
-    //    }
-
     @Override
-    public long hash(long x, long m) {
-	//	int l = (int) (Math.log(m) / Math.log(2));
-	long l = log2(m);	// get bit equivalent of m (size of table)
+    public long hash(long x) {
+
 	// by shifting bits (see super method)
 	return ((a * x) & u) >> (w - l);
     }
 
     @Override
     public Hash rehash() {
-	return new MultShiftHash(bits);
+	return new MultShiftHash(bits, l);
 
     }
 
     public static void main(String[] args) {
-	MultShiftHash msh = new MultShiftHash(32);
+	MultShiftHash msh = new MultShiftHash(32, 20);
+	long m = 2L << 20 - 1; 	// size of table, here 2^20-1 bits
+	System.out.println(m);
+	m = (long) Math.pow(2, 20);
+	System.out.println(m);
+
 	System.out.println(msh.log2(32));
 	System.out.println(msh.a);
 	System.out.println(msh.u);
-	System.out.println(msh.hash(2332, 32));
+	System.out.println(msh.hash(2332));
 
     }
 }

@@ -6,23 +6,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
-// import HashTable.RandGenerator;
-// import java.util.function.LongSupplier;
-// import java.util.stream.LongStream;
-
-public class TestCuckoo {
+public class CuckooMultShiftRandTest {
 
     public static void main(String[] args) {
 
-	String fout = "cuckoo-tab.csv";
+	String fout = "cuckoo-multshift-rand.csv";
 	Path pathOut = Paths.get(System.getProperty("user.home")).resolve("code/ds/HashTable/output/" + fout);
 	int w = 32;	// 32-bit unsigned
 	long MAX_U32 = (2L << 32 - 1) - 1; 	// universe, here 2^32-1 bits
 	long m = 2L << 20 - 1; 	// size of table, here 2^20-1 bits
 	int l = 20;		// bits, m=2^l
+
 	// Init random generator (my class not java.util)
 	RandGenerator rand = new RandGenerator(0, MAX_U32);
-	Hash hashA, hashB;
+	Hash hashA, hashB;	// two hash funcs for table
 	long key;
 
 	final int MAX_FAILED_REHASHES = 10;
@@ -39,11 +36,6 @@ public class TestCuckoo {
 		    //  Cuckoo with mult shift
 		    hashA = new MultShiftHash(w, l);	// init hash function with w-bit output
 		    hashB = new MultShiftHash(w, l);	// init hash function with w-bit output
-
-		    // Cuckoo with tab
-		    //		    hashA = new TabularHash(w, m);
-		    //		    hashB = new TabularHash(w, m);
-
 		    CuckooHT ht = new CuckooHT(m, hashA, hashB);
 
 		    // Fill each table to desired load a
@@ -77,12 +69,7 @@ public class TestCuckoo {
 
 		// Uncomment to write 
 		out.write(a + "," + meanStepsPerInsert + "," + meanTimePerInsert + "\n");
-
-		//		    if (failedRehashes > 0)
-		//			out.write("failed rehashes" + failedRehashes + "\n");
 		System.out.println("alpha " + a + " steps " + meanStepsPerInsert + " time " + meanTimePerInsert);
-		//		    System.out.println("n steps " + (double) steps);
-		//		    System.out.println("j=" + (double) k);
 
 		if (failedRehashes > MAX_FAILED_REHASHES)
 		    break;
