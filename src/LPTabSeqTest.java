@@ -21,7 +21,8 @@ public class LPTabSeqTest {
 	// Run tests for every size of m, 2^l
 	for (l = 0; l <= 20; l++) {
 	    m = 2L << l - 1; 	// size of table, here 2^l-1 bits
-
+	    if (l==0)
+		m=1;
 	    try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.APPEND,
 		    StandardOpenOption.CREATE)) {
 

@@ -24,7 +24,7 @@ public class CuckooMultShiftRandTest {
 
 	final int MAX_FAILED_REHASHES = 10;
 	final int MAX_RUNS = 100;
-	Double[] alphas = { .1, .2, .25, .3, .35, .4, .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95, .99 };
+	Double[] alphas = { .1, .2, .25, .3, .35, .4, .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95 };
 	for (Double a : alphas) {
 	    try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.APPEND,
 		    StandardOpenOption.CREATE)) {

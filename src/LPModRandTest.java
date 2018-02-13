@@ -32,7 +32,7 @@ public class LPModRandTest {
 		double meanTimePerInsert = 0;
 		int failedRehashes = 0;
 		// For each a, do 10 runs 
-		for (int run = 0; run < 10; run++) {
+		for (int run = 0; run < MAX_RUNS; run++) {
 
 		    hash = new ModuloHash(w, m);	// init hash class with w-bit output
 		    LinearProbeHT ht = new LinearProbeHT(m, hash);
