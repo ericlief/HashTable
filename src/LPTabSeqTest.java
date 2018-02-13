@@ -21,12 +21,14 @@ public class LPTabSeqTest {
 	// Run tests for every size of m, 2^l
 	for (l = 0; l <= 20; l++) {
 	    m = 2L << l - 1; 	// size of table, here 2^l-1 bits
-	    if (l==0)
-		m=1;
+	    if (l == 0)
+		m = 1;
 	    try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.APPEND,
 		    StandardOpenOption.CREATE)) {
 
-		for (int run = 0; run < 1000; run++) {	// 1000 runs for each 
+		long meanStepsPerInsert = 0;
+		int MAX_RUNS = 1000;
+		for (int run = 0; run < MAX_RUNS; run++) {	// 1000 runs for each 
 
 		    //	 Tabular
 		    hash = new TabularHash(w, m);
@@ -53,14 +55,14 @@ public class LPTabSeqTest {
 			ht.insert(key);
 		    }
 		    long steps = ht.steps(); // total steps for the run
-		    double meanStepsPerInsert = (double) steps / (double) j;
-
-		    // Uncomment to write 
-		    out.write(l + "," + run + "," + meanStepsPerInsert + "\n");
-		    System.out.println("l " + l + " run " + run + " steps " + meanStepsPerInsert);
-		    System.out.println("n steps " + (double) steps);
-
+		    meanStepsPerInsert += (double) steps / (double) j;
 		}
+
+		// Get averages over all runs
+		meanStepsPerInsert /= MAX_RUNS;
+		// Uncomment to write 
+		out.write(l + "," + meanStepsPerInsert + "\n");
+		System.out.println("l " + l + " steps " + meanStepsPerInsert);
 
 	    } catch (IOException e) {
 		// TODO Auto-generated catch block

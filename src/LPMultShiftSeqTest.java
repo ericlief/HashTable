@@ -25,7 +25,9 @@ public class LPMultShiftSeqTest {
 	    try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.APPEND,
 		    StandardOpenOption.CREATE)) {
 
-		for (int run = 0; run < 1000; run++) {	// 1000 runs for each 
+		long meanStepsPerInsert = 0;
+		int MAX_RUNS = 1000;
+		for (int run = 0; run < MAX_RUNS; run++) {	// 1000 runs for each 
 
 		    // Multshift
 		    hash = new MultShiftHash(w, l);	// init hash function with w-bit output
@@ -52,14 +54,15 @@ public class LPMultShiftSeqTest {
 			ht.insert(key);
 		    }
 		    long steps = ht.steps(); // total steps for the run
-		    double meanStepsPerInsert = (double) steps / (double) j;
-
-		    // Uncomment to write 
-		    out.write(l + "," + run + "," + meanStepsPerInsert + "\n");
-		    System.out.println("l " + l + " run " + run + " steps " + meanStepsPerInsert);
-		    System.out.println("n steps " + (double) steps);
+		    meanStepsPerInsert += (double) steps / (double) j;
 
 		}
+
+		// Get averages over all runs
+		meanStepsPerInsert /= MAX_RUNS;
+		// Uncomment to write 
+		out.write(l + "," + meanStepsPerInsert + "\n");
+		System.out.println("l " + l + " steps " + meanStepsPerInsert);
 
 	    } catch (IOException e) {
 		// TODO Auto-generated catch block
