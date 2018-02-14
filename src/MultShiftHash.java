@@ -41,7 +41,6 @@ public class MultShiftHash extends Hash {
 	System.out.println(m);
 	m = (long) Math.pow(2, 20);
 	System.out.println(m);
-
 	System.out.println(msh.log2(32));
 	System.out.println(msh.a);
 	System.out.println(msh.u);

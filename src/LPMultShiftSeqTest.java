@@ -28,7 +28,7 @@ public class LPMultShiftSeqTest {
 		else
 		    m = 2L << l - 1; 	// size of table, here 2^l-1 bits
 
-		long meanStepsPerInsert = 0;
+		double meanStepsPerInsert = 0;
 		int MAX_RUNS = 1000;
 		for (int run = 0; run < MAX_RUNS; run++) {	// 1000 runs for each 
 
@@ -57,13 +57,15 @@ public class LPMultShiftSeqTest {
 			ht.insert(key);
 		    }
 		    long steps = ht.steps(); // total steps for the run
-		    meanStepsPerInsert += (double) steps / (double) j;
+		    meanStepsPerInsert = (double) steps / (double) j;
+		    out.write(l + "," + run + "," + meanStepsPerInsert + "\n");
+
 		}
 		// Get averages over all runs
-		meanStepsPerInsert /= MAX_RUNS;
+		//		meanStepsPerInsert /= MAX_RUNS;
 		// Uncomment to write 
-		out.write(l + "," + meanStepsPerInsert + "\n");
-		System.out.println("l " + l + " steps " + meanStepsPerInsert);
+		//		out.write(l + "," + meanStepsPerInsert + "\n");
+		//		System.out.println("l " + l + " steps " + meanStepsPerInsert);
 	    }
 	} catch (IOException e) {
 	    // TODO Auto-generated catch block

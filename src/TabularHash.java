@@ -32,21 +32,12 @@ public class TabularHash extends Hash {
     @Override
     public long hash(long k) {
 
-	//	long[] chunks = split(k);	
-
-	// use mask to split key into 4 chunks
+	// Use mask to split key into 4 chunks
 	long mask = 0xFF;	// for 8 bit chunks
 	long k0 = k & mask;
 	long k1 = (k >> 8) & mask;
 	long k2 = (k >> 16) & mask;
 	long k3 = (k >> 24) & mask;
-
-	// XOR values of split 
-	//	long hash = 0l;
-	//	for (long i = 0; i < nChunks; i++) {
-	//	    long j = chunks[(int) i]; // value of chunk
-	//	    hash ^= table[(int) i][(int) j];	// retrieve hash value from table and XOR it
-	//	}
 
 	return table[0][(int) k0] ^ table[1][(int) k1] ^ table[2][(int) k2] ^ table[3][(int) k3];
     }
