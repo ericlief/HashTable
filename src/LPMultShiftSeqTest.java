@@ -18,12 +18,15 @@ public class LPMultShiftSeqTest {
 	int l = 20;	// log2 of size of table
 	long MAX_U32 = (2L << 32 - 1) - 1; 	// universe, here 2^32-1 bits
 
-	// Run tests for every size of m, 2^l
-	for (l = 0; l <= 20; l++) {
-	    m = 2L << l - 1; 	// size of table, here 2^l-1 bits
+	try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.WRITE,
+		StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
 
-	    try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.APPEND,
-		    StandardOpenOption.CREATE)) {
+	    // Run tests for every size of m, 2^l
+	    for (l = 0; l <= 20; l++) {
+		if (l == 0)
+		    m = 1;
+		else
+		    m = 2L << l - 1; 	// size of table, here 2^l-1 bits
 
 		long meanStepsPerInsert = 0;
 		int MAX_RUNS = 1000;
@@ -36,7 +39,7 @@ public class LPMultShiftSeqTest {
 		    // Fill each table to a = .89 
 		    double a = .89;
 		    long elemPerLoad = (long) Math.ceil(a * m);
-		    System.out.println("filling to load " + a + " with " + elemPerLoad);
+		    //		    System.out.println("filling to load " + a + " with " + elemPerLoad);
 		    long i;	// sequential keys
 		    for (i = 1; i < elemPerLoad; i++) {
 			// insert seq keys
@@ -48,26 +51,23 @@ public class LPMultShiftSeqTest {
 		    // Insert from .89 to .91 and measure mean
 		    long j;	// keys 
 		    a = (double) ht.n / (double) m;	// check load
-		    System.out.println("load after inserting to .89=" + a);
+		    //		    System.out.println("load after inserting to .89=" + a);
 		    for (j = 1; a <= .91; a = (double) ht.n / (double) m, j++) {
 			key = j + i - 1; // continue sequence
 			ht.insert(key);
 		    }
 		    long steps = ht.steps(); // total steps for the run
 		    meanStepsPerInsert += (double) steps / (double) j;
-
 		}
-
 		// Get averages over all runs
 		meanStepsPerInsert /= MAX_RUNS;
 		// Uncomment to write 
 		out.write(l + "," + meanStepsPerInsert + "\n");
 		System.out.println("l " + l + " steps " + meanStepsPerInsert);
-
-	    } catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
 	    }
+	} catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
     }
 
