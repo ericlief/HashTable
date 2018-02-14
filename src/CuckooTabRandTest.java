@@ -22,9 +22,9 @@ public class CuckooTabRandTest {
 	Hash hashA, hashB;	// two hash funcs for table
 	long key;
 
-	final int MAX_FAILED_REHASHES = 10;
+	final int MAX_FAILED_REHASHES = 10;	// 10%
 	final int MAX_RUNS = 100;
-	Double[] alphas = { .1, .15, .2, .25, .3, .35, .4, .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95};
+	Double[] alphas = { .1, .15, .2, .25, .3, .35, .4, .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95 };
 	for (Double a : alphas) {
 	    try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.APPEND,
 		    StandardOpenOption.CREATE)) {
@@ -63,6 +63,11 @@ public class CuckooTabRandTest {
 		    meanStepsPerInsert += (double) steps / (double) j;
 		    meanTimePerInsert += (double) totalTime / (double) j;
 		}
+
+		// Too many failures
+		if (failedRehashes > MAX_FAILED_REHASHES)
+		    break;
+
 		// Get averages over all runs
 		meanStepsPerInsert /= MAX_RUNS;
 		meanTimePerInsert /= MAX_RUNS;
@@ -71,8 +76,6 @@ public class CuckooTabRandTest {
 		out.write(a + "," + meanStepsPerInsert + "," + meanTimePerInsert + "\n");
 		System.out.println("alpha " + a + " steps " + meanStepsPerInsert + " time " + meanTimePerInsert);
 
-		if (failedRehashes > MAX_FAILED_REHASHES)
-		    break;
 	    } catch (IOException e) {
 		e.printStackTrace();
 	    }

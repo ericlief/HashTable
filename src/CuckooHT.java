@@ -6,11 +6,14 @@ public class CuckooHT extends HashTable {
     private Hash hashFuncA;	// hash function a
     private Hash hashFuncB;	// hash function b
     private long steps;
-    private int maxSteps = 100;		// log2(n), maybe make 100
-    private int maxRehashes = 10;	// trial and error
+    private int maxRehashes;	// to control when to cut off insert
+    private int maxSteps; 	// to determine when to rehash
 
     public CuckooHT(long m, Hash hashA, Hash hashB) {
 	super(m);
+	maxRehashes = 20;		// l = log2(m)
+	maxSteps = 2 * maxRehashes;	// here 40
+
 	this.hashFuncA = hashA;
 	this.hashFuncB = hashB;
 	n = 0;
@@ -79,6 +82,7 @@ public class CuckooHT extends HashTable {
 	    nRehashes++;
 	}
 
+	// Failed insert, return
 	n--;
 	return -1;
 
