@@ -1,35 +1,40 @@
-public class CuckooHT extends HashTable {
+public class CuckooHT2 extends HashTable {
 
-	private long[] keysA; // table 1 for keys
-	private long[] keysB; // table 2 for keys
+	long[][] table = new long[2][];
+	// private long[] keysA; // table 1 for keys
+	// private long[] keysB; // table 2 for keys
 	// private long[] tempKeySet; // set of keys already inserted
-	private Hash hashFuncA; // hash function a
-	private Hash hashFuncB; // hash function b
+	// private Hash hashFuncA; // hash function a
+	// private Hash hashFuncB; // hash function b
+	private Hash[] hashFuncs;
 	private long swaps; // swaps per insertion attempt
 	private long steps; // mean steps
 	private int maxRehashes; // to control when to cut off insert
-	private int maxSwaps; // to determine when to rehash
-	// private int nRehashes; // counter for each insert of a new key
+	private long maxSwaps; // to determine when to rehash
+	private int nRehashes; // counter for each insert of a new key
 
-	public CuckooHT(long m, Hash hashA, Hash hashB) {
+	public CuckooHT2(long m, Hash hashA, Hash hashB) {
 		super(m);
 		maxRehashes = 20; // l = log2(m)
 		// maxSwaps = 2 * maxRehashes; // here 40
 
-		this.hashFuncA = hashA;
-		this.hashFuncB = hashB;
+		// this.hashFuncA = hashA;
+		// this.hashFuncB = hashB;
+		this.hashFuncs = new Hash[] { hashA, hashB };
 		n = 0;
 
 		// Build first table
-		keysA = new long[(int) m / 2];
+		long[] keysA = new long[(int) m / 2];
 		for (int i = 0; i < m / 2; i++) // init array
 			keysA[i] = -1; // since no null for primitives in Java...
 
 		// Build second table / 2
-		keysB = new long[(int) m / 2];
+		long[] keysB = new long[(int) m / 2];
 		for (int i = 0; i < m / 2; i++) // init array
 			keysB[i] = -1; // since no null for primitives in Java...
 
+		this.table[0] = keysA;
+		this.table[1] = keysB;
 	}
 
 	/**
@@ -42,25 +47,40 @@ public class CuckooHT extends HashTable {
 	 */
 	@Override
 	public boolean insert(long k) {
+
+		if (find(k))
+			return false;
+
 		// nRehashes = 0; // reset rehashes
-		long maxSwaps = log2(n); // max loops, only computed once at time of initial insertion
-		long code = insert(k, 0);
-		if (code == -1)
+		maxSwaps = log2(n); // max loops, only computed once at time of initial insertion
+		nRehashes = 0;
+		swaps = 0;
+		boolean hasInserted;
+		while (!(hasInserted = insert(k, 0))) {
+			if (nRehashes > maxRehashes)
+				break;
+			rehash();
+			// status = insert(k, 0);
+		}
+		steps += swaps;
+		if (!hasInserted)
 			return false;
 		n++;
 		return true;
+
 	}
 
 	/**
 	 * Insert a given key at a given hash index. Useful if one wishes to use a
-	 * specific hash function
+	 * specific hash function table[tableNumber][i] = -1;
 	 * 
 	 * @param k
 	 *            key
 	 * @return i index
 	 */
-	private long insert(long k, int nRehashes) {
-
+	private boolean insert(long k, int whichTable) {
+		System.out.println("number " + n + " max " + maxSwaps);
+		System.out.println("inserting " + k + " num swaps " + swaps);
 		// if (nRehashes == 0)
 		// n++; // increment size of elements in table for first insert only
 		// /long nRehashes = 0;
@@ -68,66 +88,79 @@ public class CuckooHT extends HashTable {
 		// Key already in table(s)
 		// if (keysA[(int) hashFuncA.hash(k)] == k || keysB[(int) hashFuncB.hash(k)] ==
 		// k)
-		if (find(k))
-			return -1;
+		// if (find(k))
+		// return false;
 
-		if (nRehashes > maxRehashes)
-			return -1;
+		if (swaps > maxSwaps)
+			return false;
 
-		long initKey = k;
-		long initInsertPos = hashFuncA.hash(k); // init the initial pos we start with to avoid a cycle
-		long i = -1; // pos in tables
+		// long initKey = k;
+		// long initInsertPos = hashFuncA.hash(k); // init the initial pos we start with
+		// to avoid a cycle
+		// long i ; // pos in tables
 		// while (nRehas khes < maxRehashes) {
 
 		// for (int swaps = 0; swaps < maxSwaps; swaps++) {
-		swaps = 0;
-		while (swaps <= maxSwaps) {
+		// swaps = 0;
+		// while (swaps <= maxSwaps) {
 
-			// if (k == initKey && i == initInsertPos) // a cycle
-			// break;
+		// if (k == initKey && i == initInsertPos) // a cycle
+		// break;
 
-			i = hashFuncA.hash(k); // get new
+		long i = hashFuncs[whichTable].hash(k); // get new
+		boolean hasInserted = true;
 
-			// First table pos vacant, so insert this key and we done
-			if (keysA[(int) i] == -1) {
-				keysA[(int) i] = k;
-				return i;
-			}
-
-			// First table full, so insert this key and move other key to second table
-			long otherKey = keysA[(int) i]; // swap keys
-			keysA[(int) i] = k;
-			k = otherKey;
+		if (table[whichTable][(int) i] != -1) {
 			swaps++;
-			steps++;
-			i = hashFuncB.hash(k); // index for table 2
+			long ejectedKey = table[whichTable][(int) i];
+			System.out.println("ejecting " + ejectedKey + " from " + "table " + whichTable);
+			hasInserted = insert(ejectedKey, Math.abs(whichTable - 1)); // get other table
 
-			if (keysB[(int) i] == -1) { // first table full, so insert this key and move other key to second table
-				keysB[(int) i] = k; // second table empty, so just insert key and stop
-				return i; // negative pos indicates second table
-			}
-
-			k = otherKey;// Second table full, so get its current key and in next iter move other key to
-
-			// second table
-			otherKey = keysB[(int) i];
-			keysB[(int) i] = k; // insert current key and swap
-			k = otherKey;
-			swaps++;
-			steps++;
+		}
+		if (hasInserted) {
+			// This table pos vacant, so insert this key and we done
+			System.out.println("inserting " + k + " in " + "table " + whichTable);
+			table[whichTable][(int) i] = k;
 		}
 
-		// Loop limit exceeded, need to rehash and reinsert again
-		// if (nRehashes == 0)
-		// tempKeySet[0] = k;
-		rehash(k, nRehashes);
-		// nRehashes++;
+		return hasInserted;
 
-		// Failed insert, return
-		// n--;
-		return -1;
-
+		// // First table full, so insert this key and move other key to second table
+		// long otherKey = keysA[(int) i]; // swap keys
+		// keysA[(int) i] = k;
+		// k = otherKey;
+		// swaps++;
+		// steps++;
+		// i = hashFuncB.hash(k); // index for table 2
+		//
+		// if (keysB[(int) i] == -1) { // first table full, so insert this key and move
+		// other key to second table
+		// keysB[(int) i] = k; // second table empty, so just insert key and stop
+		// return i; // negative pos indicates second table
+		// }
+		//
+		// k = otherKey;// Second table full, so get its current key and in next iter
+		// move other key to
+		//
+		// // second table
+		// otherKey = keysB[(int) i];
+		// keysB[(int) i] = k; // insert current key and swap
+		// k = otherKey;
+		// swaps++;
+		// steps++;
 	}
+
+	// Loop limit exceeded, need to rehash and reinsert again
+	// if (nRehashes == 0)
+	// tempKeySet[0] = k;
+	// rehash(k);
+	// // nRehashes++;
+	//
+	// // Failed insert, return
+	// // n--;
+	// return -1;
+	//
+	// }
 
 	/**
 	 * Rehash both hash functions and rebuild table. This is done when a maximum
@@ -135,21 +168,22 @@ public class CuckooHT extends HashTable {
 	 * 
 	 * @param nRehashes
 	 * @param k
-	 *            this is the last key that needs to be re-inserted
+	 *            table[tableNumber][i] = -1; this is the last key that needs to be
+	 *            re-inserted
 	 */
-	public void rehash(long k, int nRehashes) {
+	public void rehash() {
 
 		// Keep track of rehashes
 		nRehashes++;
 
-		if (nRehashes > maxRehashes) {
-			// System.out.println("max rehashes " + nRehashes);
-			return;
-		}
+		// if (nRehashes > maxRehashes) {
+		System.out.println("max rehashes " + nRehashes);
+		// return;
+		// }
 
 		// Init new hash functions
-		hashFuncA = hashFuncA.rehash();
-		hashFuncB = hashFuncB.rehash();
+		for (int hash = 0; hash < 2; hash++)
+			hashFuncs[hash].rehash();
 
 		// // Store inserted keys in a set for further rehashes
 		// if (nRehashes == 0) {
@@ -184,31 +218,36 @@ public class CuckooHT extends HashTable {
 
 		// Check tables and if keys are no in correct places the
 		// reinsert
-		for (int i = 0; i < m / 2; i++) { // init array
-			// long k = tempKeySet[i]; // get key to reinsert
-			// if (k != -1)
-			k = keysA[i];
-			if (!find(k)) {
-				keysA[i] = -1;
-				insert(k, nRehashes);
+		for (int tableNumber = 0; tableNumber < 2; tableNumber++) {
+
+			for (int i = 0; i < m / 2; i++) { // init array
+				// long k = tempKeySet[i]; // get key to reinsert
+				// if (k != -1)
+				long k = table[tableNumber][i];
+				if (!find(k)) {
+					// table[tableNumber][i] = -1;
+					swaps = 0;
+					insert(k, 0);
+				}
 			}
 
 		}
-		for (int i = 0; i < m / 2; i++) { // init array
-			// long} k = tempKeySet[i]; // get key to reinsert
-			// if (k != -1)
-			k = keysB[i];
-			if (!find(k)) {
-				keysB[i] = -1;
-				insert(k, nRehashes);
-
-			}
-		}
-
-		// Reinsert} last ejected key
-		insert(k, nRehashes);
-
 	}
+	// for (int i = 0; i < m / 2; i++) { // init array
+	// // long} k = tempKeySet[i]; // get key to reinsert
+	// // if (k != -1)
+	// k = keysB[i];
+	// if (!find(k)) {
+	// keysB[i] = -1;
+	// insert(k, nRehashes);
+	//
+	// }
+	// }
+	//
+	// // Reinsert} last ejected key
+	// insert(k, nRehashes);
+	//
+	// }
 
 	/**
 	 * Find a given key at a given hash index. Useful if one wishes to use a
@@ -238,7 +277,7 @@ public class CuckooHT extends HashTable {
 		// return i;
 
 		// Key already in table(s)
-		return (keysA[(int) hashFuncA.hash(k)] == k || keysB[(int) hashFuncB.hash(k)] == k);
+		return (table[0][(int) hashFuncs[0].hash(k)] == k || table[1][(int) hashFuncs[1].hash(k)] == k);
 	}
 
 	public long steps() {
@@ -265,7 +304,7 @@ public class CuckooHT extends HashTable {
 		// Cuckoo with mult shift
 		hashA = new MultShiftHash(w, l - 1); // init hash function with w-bit output
 		hashB = new MultShiftHash(w, l - 1); // init hash function with w-bit output
-		CuckooHT ht = new CuckooHT(m, hashA, hashB);
+		CuckooHT2 ht = new CuckooHT2(m, hashA, hashB);
 
 		System.out.println("inserting");
 		for (int j = 0; j < m; j++) {
@@ -277,10 +316,10 @@ public class CuckooHT extends HashTable {
 		}
 		System.out.println("printing table a");
 		for (int i = 0; i < m / 2; i++)
-			System.out.println(ht.keysA[i]);
+			System.out.println(ht.table[0][i]);
 		System.out.println("printing table b");
 		for (int i = 0; i < m / 2; i++)
-			System.out.println(ht.keysB[i]);
+			System.out.println(ht.table[1][i]);
 	}
 
 }
