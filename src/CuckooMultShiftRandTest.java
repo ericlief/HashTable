@@ -30,7 +30,7 @@ public class CuckooMultShiftRandTest {
 					// Cuckoo with mult shift
 					hashA = new MultShiftHash(w, l - 1); // init hash function with w-bit output
 					hashB = new MultShiftHash(w, l - 1); // init hash function with w-bit output
-					CuckooHT ht = new CuckooHT(m, hashA, hashB);
+					CuckooHT3 ht = new CuckooHT3(m, hashA, hashB);
 					// Fill each table to desired load a
 					long elemPerLoad = (long) Math.ceil(a * m);
 					System.out.println("filling to load " + a + " with " + elemPerLoad);

@@ -30,7 +30,7 @@ public class CuckooTabRandTest {
 					// Cuckoo with tab
 					hashA = new TabularHash(w, m / 2);
 					hashB = new TabularHash(w, m / 2);
-					CuckooHT ht = new CuckooHT(m, hashA, hashB);
+					CuckooHT3 ht = new CuckooHT3(m, hashA, hashB);
 					// Fill each table to desired load a
 					long elemPerLoad = (long) Math.ceil(a * m);
 					System.out.println("filling to load " + a + " with " + elemPerLoad);
@@ -51,7 +51,7 @@ public class CuckooTabRandTest {
 					}
 					long totalTime = System.nanoTime() - startTime;
 					long steps = ht.steps(); // total steps for the run
-					meanStepsPerInsert += (do-1uble) steps / (double) j;
+					meanStepsPerInsert += (double) steps / (double) j;
 					meanTimePerInsert += (double) totalTime / (double) j;
 				}
 				// Too many failures
