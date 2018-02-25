@@ -19,13 +19,18 @@ public class CuckooMultShiftRandTest {
 		long key;
 		final int MAX_FAILED_REHASHES = 10; // 10%
 		final int MAX_RUNS = 100;
-		Double[] alphas = { .1, .15, .2, .25, .3, .35, .4, .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95 };
+		int failedRehashes = 0;
+		// Double[] alphas = { .1, .15, .2, .25, .3, .35, .4, .45, .5, .55, .6, .65, .7,
+		// .75, .8, .85, .9, .95 };
+		Double[] alphas = { .5 };
 		for (Double a : alphas) {
+			// Too many failures
+			if (failedRehashes > MAX_FAILED_REHASHES)
+				break;
 			try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.APPEND,
 					StandardOpenOption.CREATE)) {
 				double meanStepsPerInsert = 0;
 				double meanTimePerInsert = 0;
-				int failedRehashes = 0;
 				for (int run = 0; run < MAX_RUNS; run++) { // ten runs for each
 					// Cuckoo with mult shift
 					hashA = new MultShiftHash(w, l - 1); // init hash function with w-bit output
@@ -54,9 +59,9 @@ public class CuckooMultShiftRandTest {
 					meanStepsPerInsert += (double) steps / (double) j;
 					meanTimePerInsert += (double) totalTime / (double) j;
 				}
-				// Too many failures
-				if (failedRehashes > MAX_FAILED_REHASHES)
-					break;
+				// // Too many failures
+				// if (failedRehashes > MAX_FAILED_REHASHES)
+				// break;
 				// Get averages over all runs
 				meanStepsPerInsert /= MAX_RUNS;
 				meanTimePerInsert /= MAX_RUNS;

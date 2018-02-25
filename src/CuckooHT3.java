@@ -50,8 +50,8 @@ public class CuckooHT3 extends HashTable {
 		maxRehashes = (int) 1.5 * maxSwaps;
 		nRehashes = 0;
 		System.out.println("trying to insert " + k);
-		System.out.println("els in table = " + n + " max = " + maxSwaps);
-		System.out.println(nRehashes + "/" + maxRehashes);
+		// System.out.println("els in table = " + n + " max = " + maxSwaps);
+		// System.out.println(nRehashes + "/" + maxRehashes);
 		// swaps = 0;
 		// boolean hasInserted;
 		// long[][] tableCopy = deepCopyHashTable(); // a spare HT to revert to if
@@ -77,7 +77,8 @@ public class CuckooHT3 extends HashTable {
 			return true;
 		}
 		table = tableCopy; // revert back to old tables
-		System.out.println("failed with rehashes = " + nRehashes + "/" + maxRehashes);
+		// System.out.println("failed with rehashes = " + nRehashes + "/" +
+		// maxRehashes);
 		return false;
 	}
 
@@ -100,7 +101,7 @@ public class CuckooHT3 extends HashTable {
 				table[whichTable][(int) i] = k; // insert new key
 				k = ejectedKey; // swap
 				whichTable = Math.abs(whichTable - 1); // goto other table for next iter
-				print();
+				// print();
 			} else {
 				// This table pos vacant, so insert this key and we done
 				// System.out.println("inserted " + k + " in " + "table " + whichTable);
@@ -130,7 +131,7 @@ public class CuckooHT3 extends HashTable {
 		// Keep track of rehashes
 		nRehashes++;
 		// if (nRehashes > maxRehashes) {
-		System.out.println("num rehashes " + nRehashes);
+		// System.out.println("num rehashes " + nRehashes);
 		// return;
 		// }
 		// Init new hash functions

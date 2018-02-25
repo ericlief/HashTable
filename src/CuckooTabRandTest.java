@@ -7,7 +7,7 @@ import java.nio.file.StandardOpenOption;
 
 public class CuckooTabRandTest {
 	public static void main(String[] args) {
-		String fout = "cuckoo-tab-rand.csv";
+		String fout = "cuckoo-tab-rand2.csv";
 		Path pathOut = Paths.get(System.getProperty("user.home")).resolve("code/ds/HashTable/output/" + fout);
 		int w = 32; // 32-bit unsigned
 		long MAX_U32 = (2L << 32 - 1) - 1; // universe, here 2^32-1 bits
@@ -19,13 +19,18 @@ public class CuckooTabRandTest {
 		long key;
 		final int MAX_FAILED_REHASHES = 10; // 10%
 		final int MAX_RUNS = 100;
-		Double[] alphas = { .1, .15, .2, .25, .3, .35, .4, .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95 };
+		int failedRehashes = 0;
+		// Double[] alphas = { .1, .15, .2, .25, .3, .35, .4, .45, .5, .55, .6, .65, .7,
+		// .75, .8, .85, .9, .95 };
+		Double[] alphas = { .5 };
 		for (Double a : alphas) {
+			// Too many failures
+			if (failedRehashes > MAX_FAILED_REHASHES)
+				break;
 			try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.APPEND,
 					StandardOpenOption.CREATE)) {
 				double meanStepsPerInsert = 0;
 				double meanTimePerInsert = 0;
-				int failedRehashes = 0;
 				for (int run = 0; run < MAX_RUNS; run++) { // ten runs for each
 					// Cuckoo with tab
 					hashA = new TabularHash(w, m / 2);
@@ -54,9 +59,9 @@ public class CuckooTabRandTest {
 					meanStepsPerInsert += (double) steps / (double) j;
 					meanTimePerInsert += (double) totalTime / (double) j;
 				}
-				// Too many failures
-				if (failedRehashes > MAX_FAILED_REHASHES)
-					break;
+				// // Too many failures
+				// if (failedRehashes > MAX_FAILED_REHASHES)
+				// break;
 				// Get averages over all runs
 				meanStepsPerInsert /= MAX_RUNS;
 				meanTimePerInsert /= MAX_RUNS;
