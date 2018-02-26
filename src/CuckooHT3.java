@@ -9,7 +9,7 @@ public class CuckooHT3 extends HashTable {
 	private Hash[] hashFuncs;
 	private long swaps; // swaps per insertion attempt
 	private long steps; // total steps including rehash insertions
-	private int maxRehashes; // to control when to cut off insert
+	private long maxRehashes; // to control when to cut off insert
 	private int maxSwaps; // to determine when to rehash
 	private int nRehashes; // counter for each insert of a new key
 
@@ -20,6 +20,8 @@ public class CuckooHT3 extends HashTable {
 		// this.hashFuncA = hashA;int
 		// this.hashFuncB = hashB;
 		this.hashFuncs = new Hash[] { hashA, hashB };
+		this.maxRehashes = log2(m) / 2;
+		this.nRehashes = 0;
 		n = 0;
 		// Build first table
 		long[] keysA = new long[(int) m / 2];
@@ -47,9 +49,9 @@ public class CuckooHT3 extends HashTable {
 			return false;
 		// nRehashes = 0; // reset rehashes
 		maxSwaps = (int) log2(n) + 1; // max loops, only computed once at time of initial insertion
-		maxRehashes = (int) 1.5 * maxSwaps;
-		nRehashes = 0;
-		System.out.println("trying to insert " + k);
+		// maxRehashes = (int) 1.5 * maxSwaps;
+		// nRehashes = 0;
+		// System.out.println("trying to insert " + k);
 		// System.out.println("els in table = " + n + " max = " + maxSwaps);
 		// System.out.println(nRehashes + "/" + maxRehashes);
 		// swaps = 0;
@@ -83,9 +85,11 @@ public class CuckooHT3 extends HashTable {
 	}
 
 	private boolean put(long k) {
+		if (nRehashes >= maxRehashes)
+			return false;
 		// System.out.println("put key " + k);
 		// System.out.println("rehashes: " + nRehashes + "/" + maxRehashes);
-		print();
+		// print();
 		int whichTable = 0;
 		swaps = 0;
 		while (swaps <= maxSwaps) {
@@ -95,6 +99,7 @@ public class CuckooHT3 extends HashTable {
 			if (table[whichTable][(int) i] != -1) {
 				swaps++;
 				steps++;
+				// System.out.println("swaps " + swaps);
 				long ejectedKey = table[whichTable][(int) i]; // eject key
 				// System.out.println("ejecting " + ejectedKey + " from " + "table " +
 				// whichTable);
@@ -128,6 +133,8 @@ public class CuckooHT3 extends HashTable {
 	 *            re-inserted
 	 */
 	public void rehash() {
+		if (nRehashes >= maxRehashes)
+			return;
 		// Keep track of rehashes
 		nRehashes++;
 		// if (nRehashes > maxRehashes) {
@@ -234,6 +241,10 @@ public class CuckooHT3 extends HashTable {
 
 	public long steps() {
 		return steps;
+	}
+
+	public long getNRehashes() {
+		return nRehashes;
 	}
 
 	public void resetSteps() {
