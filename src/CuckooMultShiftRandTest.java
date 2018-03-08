@@ -25,8 +25,8 @@ public class CuckooMultShiftRandTest {
 		// Create two hash functions and two tables of equal size for HT
 		hashA = new MultShiftHash(w, l - 1); // init hash function with w-bit output
 		hashB = new MultShiftHash(w, l - 1); // init hash function with w-bit output
-		long maxSwaps = Hash.log2(m); // max loops only depends on max number of items in hash
-										// source (Dr. Mares' class notes, 6-12)
+		long maxSwaps = l; // max loops only depends on max number of items in hash (i.e. m), so this is
+							// log(m)=l, vid. Dr. Mares' class notes, 6-12
 		CuckooHT ht = new CuckooHT(m, hashA, hashB, maxSwaps);
 		while (j < m && ht.getNRehashes() < MAX_REHASHES) {
 			try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.APPEND,

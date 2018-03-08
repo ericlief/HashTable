@@ -11,7 +11,7 @@ public class CuckooHT extends HashTable {
 	public CuckooHT(long m, Hash hashA, Hash hashB, long maxSwaps) {
 		super(m);
 		this.hashFuncs = new Hash[] { hashA, hashB };
-		this.maxRehashes = log2(m) / 2;
+		this.maxRehashes = 10; // = log2(m) / 2;
 		this.maxSwaps = maxSwaps; // max loops only depends on max number of items in hash
 									// source (Dr. Mares' class notes, 6-12)
 		this.nRehashes = 0;
@@ -40,7 +40,6 @@ public class CuckooHT extends HashTable {
 	public boolean insert(long k) {
 		if (find(k))
 			return false;
-		// maxSwaps = (int) log2(n) + 1; // max loops, only computed once at time of
 		// initial insertion
 		tableCopy = deepCopyHashTable(table); // copy tables once
 		boolean status = put(k); // call internal method put()
