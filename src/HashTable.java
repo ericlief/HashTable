@@ -39,7 +39,7 @@ abstract class HashTable {
 	 * @param x
 	 * @return log2(x)
 	 */
-	public long log2(long x) {
+	public static long log2(long x) {
 		int r = 0;
 		while (x > 1) {
 			x >>= 1;

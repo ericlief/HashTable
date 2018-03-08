@@ -40,6 +40,7 @@ public class LPTabRandTest {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			// Alternate test
 			// final int MAX_RUNS = 100;
 			// Double[] alphas = { .1, .15, .2, .25, .3, .35, .4, .45, .5, .55, .6, .65, .7,
 			// .75, .8, .85, .9, .95 };

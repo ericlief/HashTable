@@ -7,7 +7,7 @@ import java.nio.file.StandardOpenOption;
 
 public class LPModRandTest {
 	public static void main(String[] args) {
-		String fout = "lp-mod-rand.csv";
+		String fout = "lp-mod-randx.csv";
 		Path pathOut = Paths.get(System.getProperty("user.home")).resolve("code/ds/HashTable/output/" + fout);
 		Hash hash;
 		long key;
@@ -40,6 +40,7 @@ public class LPModRandTest {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			// Alternate test
 			// final int MAX_RUNS = 100;
 			// Double[] alphas = { .1, .15, .2, .25, .3, .35, .4, .45, .5, .55, .6, .65, .7,
 			// .75, .8, .85, .9, .95 };

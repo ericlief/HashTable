@@ -7,12 +7,13 @@ import java.nio.file.StandardOpenOption;
 
 public class CuckooTabRandTest {
 	public static void main(String[] args) {
-		String fout = "cuckoo-tab-randx.csv";
+		String fout = "cuckoo-tab-randx2.csv";
 		Path pathOut = Paths.get(System.getProperty("user.home")).resolve("code/ds/HashTable/output/" + fout);
 		int w = 32; // 32-bit unsigned
 		long MAX_U32 = (2L << 32 - 1) - 1; // universe, here 2^32-1 bits
-		int l = 4; // bits, m=2^l
-		long m = 2L << l - 1; // size of table, here 2^20-1 bits
+		int l = 20; // bits, m=2^l
+		long m = 2L << l - 1; // size of table, here 2^20-1 bits, note that this is a power of two
+		// l=1, m=2 | l=2, m=4 | l=3, m=8, etc.
 		// Init random generator (my class not java.util)
 		RandGenerator rand = new RandGenerator(0, MAX_U32);
 		Hash hashA, hashB; // two hash funcs for table
@@ -23,7 +24,9 @@ public class CuckooTabRandTest {
 		long totalSteps = 0;
 		hashA = new TabularHash(w, m / 2);
 		hashB = new TabularHash(w, m / 2);
-		CuckooHT3 ht = new CuckooHT3(m, hashA, hashB);
+		long maxSwaps = Hash.log2(m); // max loops only depends on max number of items in hash
+										// source (Dr. Mares' class notes, 6-12)
+		CuckooHT ht = new CuckooHT(m, hashA, hashB, maxSwaps);
 		while (j < m && ht.getNRehashes() < MAX_REHASHES) {
 			try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.APPEND,
 					StandardOpenOption.CREATE)) {
@@ -42,7 +45,7 @@ public class CuckooTabRandTest {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			// other test
+			// Alternate test
 			// long nRehashes = 0;
 			// Double[] alphas = { .1, .15, .2, .25, .3, .35, .4, .45, .5, .55, .6, .65, .7,
 			// .75, .8, .85, .9, .95 };
