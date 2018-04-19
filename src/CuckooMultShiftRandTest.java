@@ -7,7 +7,7 @@ import java.nio.file.StandardOpenOption;
 
 public class CuckooMultShiftRandTest {
 	public static void main(String[] args) {
-		String fout = "cuckoo-multshift-randx2.csv";
+		String fout = "cuckoo-multshift-rand.csv";
 		Path pathOut = Paths.get(System.getProperty("user.home")).resolve("code/ds/HashTable/output/" + fout);
 		int w = 32; // 32-bit unsigned
 		long MAX_U32 = (2L << 32 - 1) - 1; // universe, here 2^32-1 bits
@@ -25,8 +25,8 @@ public class CuckooMultShiftRandTest {
 		// Create two hash functions and two tables of equal size for HT
 		hashA = new MultShiftHash(w, l - 1); // init hash function with w-bit output
 		hashB = new MultShiftHash(w, l - 1); // init hash function with w-bit output
-		long maxSwaps = l; // max loops only depends on max number of items in hash (i.e. m), so this is
-							// log(m)=l, vid. Dr. Mares' class notes, 6-12
+		long maxSwaps = 6 * l;  // max loops only depends on max number of items in hash (i.e. m), so this is
+							    // 6*log(m)=6*l, vid. Dr. Mares' class notes, 6-12
 		CuckooHT ht = new CuckooHT(m, hashA, hashB, maxSwaps);
 		while (j < m && ht.getNRehashes() < MAX_REHASHES) {
 			try (BufferedWriter out = Files.newBufferedWriter(pathOut, StandardOpenOption.APPEND,

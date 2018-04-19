@@ -187,7 +187,8 @@ public class CuckooHT extends HashTable {
 		// hashB = new MultShiftHash(w, l - 1); // init hash function with w-bit output
 		hashA = new TabularHash(w, m / 2);
 		hashB = new TabularHash(w, m / 2);
-		long maxSwaps = Hash.log2(m);
+//		long maxSwaps = Hash.log2(m);
+		long maxSwaps = 6*l;
 		CuckooHT ht = new CuckooHT(m, hashA, hashB, maxSwaps);
 		// System.out.println("inserting");
 		for (int j = 0; j < m; j++) {
